@@ -25,6 +25,7 @@ import {
   createBuildableTsConfig,
   loadViteDynamicImport,
   validateTypes,
+  withExecutionContext,
 } from '../../utils/executor-utils';
 
 export async function* viteBuildExecutor(
@@ -51,12 +52,14 @@ export async function* viteBuildExecutor(
 
   const { buildOptions, otherOptions } = await getBuildExtraArgs(options);
 
-  const resolved = await loadConfigFromFile(
-    {
-      mode: otherOptions?.mode ?? 'production',
-      command: 'build',
-    },
-    viteConfigPath
+  const resolved = await withExecutionContext(context, () =>
+    loadConfigFromFile(
+      {
+        mode: otherOptions?.mode ?? 'production',
+        command: 'build',
+      },
+      viteConfigPath
+    )
   );
 
   const outDir =
@@ -87,7 +90,9 @@ export async function* viteBuildExecutor(
     });
   }
 
-  const watcherOrOutput = await build(buildConfig);
+  const watcherOrOutput = await withExecutionContext(context, () =>
+    build(buildConfig)
+  );
 
   const libraryPackageJson = resolve(projectRoot, 'package.json');
   const rootPackageJson = resolve(context.root, 'package.json');
