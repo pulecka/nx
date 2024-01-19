@@ -1,5 +1,6 @@
 export * from './src/utils/versions';
 export * from './src/utils/generator-utils';
+export { getExecutionContext } from './src/utils/executor-utils';
 export { type ViteConfigurationGeneratorSchema } from './src/generators/configuration/schema';
 export { viteConfigurationGenerator } from './src/generators/configuration/configuration';
 export { type VitestGeneratorSchema } from './src/generators/vitest/schema';

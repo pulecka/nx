@@ -1,5 +1,6 @@
 import { printDiagnostics, runTypeCheck } from '@nx/js';
 import { join } from 'path';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { ViteBuildExecutorOptions } from '../executors/build/schema';
 import { ExecutorContext } from '@nx/devkit';
 import { ViteDevServerExecutorOptions } from '../executors/dev-server/schema';
@@ -8,6 +9,8 @@ import {
   createTmpTsConfig,
 } from '@nx/js/src/utils/buildable-libs-utils';
 import { getProjectTsConfigPath } from './options-utils';
+
+export const executionContextStorage = new AsyncLocalStorage<ExecutorContext>();
 
 export async function validateTypes(opts: {
   workspaceRoot: string;
@@ -61,3 +64,10 @@ export function createBuildableTsConfig(
 export function loadViteDynamicImport() {
   return Function('return import("vite")')() as Promise<typeof import('vite')>;
 }
+
+export const withExecutionContext = <T>(
+  context: ExecutorContext,
+  callback: () => T
+): T => executionContextStorage.run(context, callback);
+
+export const getExecutionContext = () => executionContextStorage.getStore();
